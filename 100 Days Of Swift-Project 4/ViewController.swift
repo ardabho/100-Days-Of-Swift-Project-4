@@ -11,7 +11,7 @@ import WebKit
 class ViewController: UIViewController, WKNavigationDelegate {
     var webView: WKWebView!
     var progressView : UIProgressView!
-    let websites = ["apple.com", "nytimes.com", "github.com", "hackingwithswift.com"]
+    let websites = ["apple.com", "nytimes.com", "github.com", "hackingwithswift.com", "google.com"]
     
     override func loadView() {
         webView = WKWebView()// Create a webView object
@@ -40,7 +40,7 @@ class ViewController: UIViewController, WKNavigationDelegate {
         webView.load(URLRequest(url: url))
         webView.allowsBackForwardNavigationGestures = true
     }
-  
+    
     //observer method
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         if keyPath == "estimatedProgress" {
@@ -58,10 +58,10 @@ class ViewController: UIViewController, WKNavigationDelegate {
             ac.addAction(UIAlertAction(title: website, style: .default, handler: openPage))
         }
         
-        //add a cancel button for alrt controller
+        //add a cancel button for alert controller
         ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         
-        ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem
+        ac.popoverPresentationController?.barButtonItem = self.navigationItem.rightBarButtonItem // This line is for ipads
         present(ac, animated: true)
     }
     
@@ -77,17 +77,21 @@ class ViewController: UIViewController, WKNavigationDelegate {
     
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let url = navigationAction.request.url
-
-            if let host = url?.host {
-                for website in websites {
-                    if host.contains(website) {
-                        decisionHandler(.allow)
-                        return
-                        
-                    }
+        
+        if let host = url?.host {
+            for website in websites {
+                if host.contains(website) {
+                    decisionHandler(.allow)
+                    return
                 }
             }
-
-            decisionHandler(.cancel)
+            //Show an alert to show the website is not allowed
+            let ac = UIAlertController(title: "Warning!", message: "Website you wish to visit is not allowed", preferredStyle: .alert)
+            ac.addAction(UIAlertAction(title: "Dismiss", style: .cancel))
+            present(ac, animated: true)
+        }
+        
+        
+        decisionHandler(.cancel)
     }
 }
